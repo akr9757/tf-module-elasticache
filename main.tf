@@ -1,5 +1,5 @@
 resource "aws_elasticache_subnet_group" "main" {
-  name       = "${var.name}.${var.env}"
+  name       = "${var.name}-${var.env}"
   subnet_ids = var.subnets
 
   tags = merge(var.tags, { Name = "${var.name}-${var.env}-sng" })
@@ -31,25 +31,25 @@ resource "aws_security_group" "main" {
 
 resource "aws_elasticache_parameter_group" "main" {
   family      = "redis6.x"
-  name        = "${var.name}-${var.env}"
-  description = "${var.name}-${var.env}"
-  tags = merge(var.tags, { Name = "${var.name}-${var.env}-pg" })
+  name        = "${var.name}-${var.env}-pg"
+  description = "${var.name}-${var.env}-pg"
+  tags        = merge(var.tags, { Name = "${var.name}-${var.env}-pg" })
 }
 
 resource "aws_elasticache_replication_group" "main" {
-  replication_group_id       = "${var.name}-${var.env}"
-  description                = "${var.name}-${var.env}"
+  replication_group_id       = "${var.name}-${var.env}-elasticache"
+  description                = "${var.name}-${var.env}-elasticache"
   node_type                  = var.node_type
-  port                       = var.port_no
+  port                       = 6379
   parameter_group_name       = aws_elasticache_parameter_group.main.name
   automatic_failover_enabled = true
-  num_node_groups         = var.num_node_groups
-  replicas_per_node_group = var.replicas_per_node_group
-  subnet_group_name = aws_elasticache_subnet_group.main.name
-  security_group_ids = [ aws_security_group.main.id ]
-  engine = "redis"
-  engine_version = var.engine_version
+  num_node_groups            = var.num_node_groups
+  replicas_per_node_group    = var.replicas_per_node_group
+  subnet_group_name          = aws_elasticache_subnet_group.main.name
+  security_group_ids         = [aws_security_group.main.id]
+  engine                     = "redis"
+  engine_version             = var.engine_version
   at_rest_encryption_enabled = true
-  kms_key_id = var.kms_arn
-  tags = merge(var.tags, { Name = "${var.name}-${var.env}-elasticache" })
+  kms_key_id                 = var.kms_arn
+  tags                       = merge(var.tags, { Name = "${var.name}-${var.env}-elasticache" })
 }
